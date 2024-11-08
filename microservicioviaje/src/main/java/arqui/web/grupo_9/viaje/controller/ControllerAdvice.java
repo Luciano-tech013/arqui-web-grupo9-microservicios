@@ -1,7 +1,7 @@
 package arqui.web.grupo_9.viaje.controller;
 
 import arqui.web.grupo_9.viaje.model.dto.ExcepcionDTO;
-import arqui.web.grupo_9.viaje.service.exceptions.NotFoundViajeException;
+import arqui.web.grupo_9.viaje.service.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -43,9 +43,91 @@ public class ControllerAdvice {
      */
     @ExceptionHandler(value = NotFoundViajeException.class)
     public ResponseEntity<ExcepcionDTO> notFoundViajeExceptionHandler(NotFoundViajeException ex) {
-        ExcepcionDTO error = new ExcepcionDTO(ex.getUserMessage(), ex.getSeverity());
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(this.createExceptionDTO(ex.getUserMessage(), ex.getSeverity()), HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Maneja la excepción {@code NotFoundUsuarioClientException}.
+     * <p>
+     * Este método intercepta la excepción {@code NotFoundUsuarioClientException} cuando no se encuentra al usuario
+     * solicitado en el cliente, como podría ser el caso de un usuario no registrado o no encontrado. Devuelve una respuesta
+     * {@code ResponseEntity} con un código de estado {@code 404 NOT_FOUND}, junto con un {@code ExcepcionDTO} que contiene
+     * un mensaje y la severidad de la excepción.
+     * </p>
+     *
+     * @param ex La excepción {@code NotFoundUsuarioClientException} lanzada cuando no se encuentra el usuario en el cliente.
+     *
+     * @return {@code ResponseEntity<ExcepcionDTO>}: Un objeto que encapsula el DTO de la excepción y un código de estado HTTP 404.
+     */
+    @ExceptionHandler(value = NotFoundUsuarioClientException.class)
+    public ResponseEntity<ExcepcionDTO> notFoundUsuarioExceptionHandler(NotFoundUsuarioClientException ex) {
+        return new ResponseEntity<>(this.createExceptionDTO(ex.getUserMessage(), ex.getSeverity()), HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Maneja la excepción {@code NotFoundMonopatinClientException}.
+     * <p>
+     * Este método intercepta la excepción {@code NotFoundMonopatinClientException} cuando no se encuentra el monopatín
+     * solicitado, como podría ser el caso de un monopatín no disponible o no registrado. Devuelve una respuesta
+     * {@code ResponseEntity} con un código de estado {@code 404 NOT_FOUND}, junto con un {@code ExcepcionDTO} que contiene
+     * un mensaje y la severidad de la excepción.
+     * </p>
+     *
+     * @param ex La excepción {@code NotFoundMonopatinClientException} lanzada cuando no se encuentra el monopatín solicitado.
+     *
+     * @return {@code ResponseEntity<ExcepcionDTO>}: Un objeto que encapsula el DTO de la excepción y un código de estado HTTP 404.
+     */
+    @ExceptionHandler(value = NotFoundMonopatinClientException.class)
+    public ResponseEntity<ExcepcionDTO> notFoundMonopatinExceptionHandler(NotFoundMonopatinClientException ex) {
+        return new ResponseEntity<>(this.createExceptionDTO(ex.getUserMessage(), ex.getSeverity()), HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Maneja la excepción {@code SaldoInsuficienteException}.
+     * <p>
+     * Este método intercepta la excepción {@code SaldoInsuficienteException} cuando un usuario intenta realizar una acción
+     * que requiere más saldo del disponible. Devuelve una respuesta {@code ResponseEntity} con un código de estado
+     * {@code 400 BAD_REQUEST}, junto con un {@code ExcepcionDTO} que contiene un mensaje y la severidad de la excepción.
+     * </p>
+     *
+     * @param ex La excepción {@code SaldoInsuficienteException} lanzada cuando el saldo de un usuario es insuficiente para
+     * realizar una operación.
+     *
+     * @return {@code ResponseEntity<ExcepcionDTO>}: Un objeto que encapsula el DTO de la excepción y un código de estado HTTP 400.
+     */
+    @ExceptionHandler(value = SaldoInsuficienteException.class)
+    public ResponseEntity<ExcepcionDTO> saldoInsuficienteExceptionHandler(SaldoInsuficienteException ex) {
+        return new ResponseEntity<>(this.createExceptionDTO(ex.getUserMessage(), ex.getSeverity()), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Manejador de excepciones para cuando ocurre un error relacionado con la finalización de un viaje.
+     * Este método captura la excepción {@link FinalizarViajeException} y devuelve una respuesta con
+     * un mensaje de error y un código de estado HTTP correspondiente a la naturaleza de la excepción.
+     *
+     * @param ex La excepción {@link FinalizarViajeException} que se lanzó durante la finalización de un viaje.
+     * @return Una respuesta HTTP con el código de estado {@link HttpStatus#BAD_REQUEST} y un cuerpo
+     *         que contiene un {@link ExcepcionDTO} con el mensaje de error y la severidad de la excepción.
+     */
+    @ExceptionHandler(value = FinalizarViajeException.class)
+    public ResponseEntity<ExcepcionDTO> finalizarViajeExceptionHandler(FinalizarViajeException ex) {
+        return new ResponseEntity<>(this.createExceptionDTO(ex.getUserMessage(), ex.getSeverity()), HttpStatus.BAD_REQUEST);
     }
 
 
+    /**
+     * Método auxiliar para crear un {@code ExcepcionDTO}.
+     * <p>
+     * Este método se utiliza para crear un objeto {@code ExcepcionDTO} con un mensaje y severidad proporcionados, que luego
+     * será enviado al cliente como parte de la respuesta.
+     * </p>
+     *
+     * @param message El mensaje que será mostrado al usuario en caso de la excepción.
+     * @param severity El nivel de severidad de la excepción, que indica la gravedad del error.
+     *
+     * @return {@code ExcepcionDTO}: El objeto DTO que encapsula el mensaje y severidad para la respuesta.
+     */
+    private ExcepcionDTO createExceptionDTO(String message, String severity) {
+        return new ExcepcionDTO(message, severity);
+    }
 }

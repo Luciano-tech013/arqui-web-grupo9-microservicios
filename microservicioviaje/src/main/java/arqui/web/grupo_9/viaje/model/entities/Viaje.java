@@ -1,16 +1,15 @@
 package arqui.web.grupo_9.viaje.model.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
-@AllArgsConstructor
+@Getter @Setter
 public class Viaje {
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_viaje")
@@ -41,7 +40,7 @@ public class Viaje {
     private Long idMonopatin;
 
     @Transient
-    private static final double PRECIO_BASE = 0.00;
+    public static final double PRECIO_BASE = 10.00;
 
     @Transient
     private static final double PRECIO_RECARGO = 0.00;
@@ -52,4 +51,10 @@ public class Viaje {
     /* Aplico recargo se puede calcular*/
 
     public Viaje() {}
+
+    public Viaje(LocalDateTime fechaIniViaje, Long idUsuario, Long idMonopatin) {
+        this.fechaIniViaje = fechaIniViaje;
+        this.idUsuario = idUsuario;
+        this.idMonopatin = idMonopatin;
+    }
 }

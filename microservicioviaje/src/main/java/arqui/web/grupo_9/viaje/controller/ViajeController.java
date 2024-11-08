@@ -5,6 +5,7 @@ import arqui.web.grupo_9.viaje.model.dto.converter.ViajeConverter;
 import arqui.web.grupo_9.viaje.model.entities.Viaje;
 import arqui.web.grupo_9.viaje.service.ViajeService;
 
+import arqui.web.grupo_9.viaje.service.exceptions.NotFoundViajeException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,9 @@ public class ViajeController {
     @GetMapping()
     public ResponseEntity<List<ViajeDTO>> findAll() {
         List<Viaje> viajes = this.service.findAll();
+        if(viajes.isEmpty())
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+
         return new ResponseEntity<>(this.converter.fromEntity(viajes), HttpStatus.OK);
     }
 
@@ -34,25 +38,32 @@ public class ViajeController {
         return new ResponseEntity<>(this.converter.fromEntity(viajeFinded), HttpStatus.FOUND);
     }
 
-    //El viaje se levanta una vez finalizado
-    private boolean save(Viaje viaje) {
-        return this.service.save(viaje);
-    }
-
     @DeleteMapping("/{idViaje}")
     public ResponseEntity<Boolean> deleteById(@PathVariable Long idViaje) {
-        boolean deleted = this.service.deleteById(idViaje);
-        return new ResponseEntity<>(deleted, HttpStatus.OK);
+        return new ResponseEntity<>(this.service.deleteById(idViaje), HttpStatus.OK);
     }
 
-    @PutMapping("/{idViaje}")
+    /*@PutMapping("/{idViaje}")
     public ResponseEntity<Boolean> updateById(@PathVariable Long idViaje, @RequestBody Viaje viajeModified) {
-        boolean updated = this.service.updateById(idViaje, viajeModified);
-        return new ResponseEntity<>(updated, HttpStatus.OK);
+        if(this.service.findById(idViaje) == null)
+            throw new NotFoundViajeException("El id enviado es incorrecto, no existe en la tabla viaje", "El viaje solicitado nunca fue generado. Por favor, solicita un viaje finalizado", "low");
+
+        if(viajeModified == null)
+            throw new BodyViajeException("El body enviado esta vacio", "Debe actualizar algun campo. Por favor, actualiza algun valor", "high");
+
+        return new ResponseEntity<>(this.service.updateById(idViaje, viajeModified), HttpStatus.OK);
+    }*/
+
+    @GetMapping("/generar/{idUsuario}/{idMonopatin}")
+    public ResponseEntity<Boolean> generarViaje(@PathVariable Long idUsuario, @PathVariable Long idMonopatin) {
+        boolean generated = this.service.generar(idUsuario, idMonopatin);
+        return new ResponseEntity<>(generated, HttpStatus.OK);
     }
 
-    @GetMapping("/generar")
-    public ViajeDTO generarViaje() {
-        return null;
+    @GetMapping("/finalizar/viaje")
+    public ResponseEntity<Boolean> finalizarViaje() {
+        boolean finalizated = this.service.finalizar();
+        return new ResponseEntity<>(finalizated, HttpStatus.OK);
     }
+
 }

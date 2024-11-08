@@ -9,7 +9,10 @@ public class ViajeConverter extends ConverterDTO<Viaje, ViajeDTO> {
 
     @Override
     public ViajeDTO fromEntity(Viaje e) {
-        return null;
+        if(e == null)
+            return null;
+
+        return new ViajeDTO(e.getFechaIniViaje(), e.getFechaFinViaje(), e.getKmsRecorridos(), e.getCostoTotal());
     }
 
     @Override

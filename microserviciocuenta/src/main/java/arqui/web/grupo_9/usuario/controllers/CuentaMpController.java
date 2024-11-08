@@ -1,4 +1,4 @@
-package arqui.web.grupo_9.usuario.controller;
+package arqui.web.grupo_9.usuario.controllers;
 
 import arqui.web.grupo_9.usuario.model.dto.CuentaMpDTO;
 import arqui.web.grupo_9.usuario.model.entities.CuentaMP;

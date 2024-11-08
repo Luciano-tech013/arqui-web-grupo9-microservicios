@@ -11,6 +11,7 @@
     <groupId>arqui.web.grupo_9</groupId>
     <artifactId>tp_microservicios</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>tp_microservicios</name>
     <description>tp_microservicios</description>
     <url/>
@@ -20,6 +21,9 @@
     <developers>
         <developer/>
     </developers>
+    <modules>
+        <module>servicioeureka</module>
+    </modules>
     <scm>
         <connection/>
         <developerConnection/>
