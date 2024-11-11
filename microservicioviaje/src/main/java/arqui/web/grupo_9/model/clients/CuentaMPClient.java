@@ -1,4 +1,4 @@
-package arqui.web.grupo_9.viaje.model.clients;
+package arqui.web.grupo_9.model.clients;
 
 import lombok.Data;
 

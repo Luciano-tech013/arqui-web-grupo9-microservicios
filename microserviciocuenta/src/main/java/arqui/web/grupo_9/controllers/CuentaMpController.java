@@ -1,12 +1,10 @@
-package arqui.web.grupo_9.usuario.controllers;
+package arqui.web.grupo_9.controllers;
 
-import arqui.web.grupo_9.usuario.model.dto.CuentaMpDTO;
-import arqui.web.grupo_9.usuario.model.dto.UsuarioDTO;
-import arqui.web.grupo_9.usuario.model.dto.converters.CuentaMPConverter;
-import arqui.web.grupo_9.usuario.model.dto.converters.UsuarioConverter;
-import arqui.web.grupo_9.usuario.model.entities.CuentaMP;
-import arqui.web.grupo_9.usuario.services.CuentaMpService;
-import arqui.web.grupo_9.usuario.services.exceptions.CuentaInhabilitadaException;
+import arqui.web.grupo_9.model.dto.CuentaMpDTO;
+import arqui.web.grupo_9.model.dto.converters.CuentaMPConverter;
+import arqui.web.grupo_9.model.entities.CuentaMP;
+import arqui.web.grupo_9.services.CuentaMpService;
+import arqui.web.grupo_9.services.exceptions.CuentaInhabilitadaException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,15 +48,6 @@ public class CuentaMpController {
         return new ResponseEntity<>(this.cuentaMpService.crearCuenta(idUsuario), HttpStatus.OK);
     }
 
-    @PutMapping("/{idCuentaMP}/eliminar/usuario/{idUsuario}")
-    public ResponseEntity<Boolean> eliminarUsuarioDeCuenta(@PathVariable Long idCuentaMP, @PathVariable Long idUsuario) {
-        if(this.cuentaMpService.estaHabilitada(idCuentaMP)) {
-            return new ResponseEntity<>(this.cuentaMpService.eliminarUsuarioDeCuenta(idCuentaMP, idUsuario), HttpStatus.OK);
-        }
-
-        throw new CuentaInhabilitadaException("Se intento realizar una operacion sobre una cuenta inhabilitada y se lanzo la excepcion correspondiente", "La cuenta con la que intentas operar se encuentra inhabilitada. Debes esperar hasta la fecha correspondiente", "high");
-    }
-
     @PutMapping("/{idCuentaMP}/cargarSaldo")
     public ResponseEntity<Boolean> cargarSaldo(@PathVariable Long idCuentaMP, @RequestParam double saldo) {
         if(this.cuentaMpService.estaHabilitada(idCuentaMP)) {
@@ -78,14 +67,14 @@ public class CuentaMpController {
     }
 
     //PUEDE TRAER PROBLEMAS DE MAPEO PORQUE YA EXISTE OTRO ENDPOINT IGUAL
-    /*@PutMapping("/{idCuentaMP}/inhabilitar")
+    @PutMapping("/{idCuentaMP}/inhabilitar")
     public ResponseEntity<Boolean> inhabilitarCuenta(@PathVariable Long idCuentaMP, @RequestParam LocalDate fechaHasta) {
         if(this.cuentaMpService.estaHabilitada(idCuentaMP)) {
             return new ResponseEntity<>(this.cuentaMpService.inhabilitarCuenta(idCuentaMP, fechaHasta), HttpStatus.OK);
         }
 
         throw new CuentaInhabilitadaException("Se intento inhabilitar una cuenta ya inhabilitada", "La cuenta ya se encuentra inhabilitada", "low");
-    }*/
+    }
 
     @DeleteMapping("/{idCuentaMP}")
     public ResponseEntity<Boolean> deleteById(@PathVariable Long idCuentaMP) {

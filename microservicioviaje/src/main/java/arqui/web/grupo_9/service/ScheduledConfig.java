@@ -1,4 +1,4 @@
-package arqui.web.grupo_9.viaje.service;
+package arqui.web.grupo_9.service;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;

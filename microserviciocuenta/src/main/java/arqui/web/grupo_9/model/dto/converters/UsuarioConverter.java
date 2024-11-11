@@ -1,7 +1,7 @@
-package arqui.web.grupo_9.usuario.model.dto.converters;
+package arqui.web.grupo_9.model.dto.converters;
 
-import arqui.web.grupo_9.usuario.model.dto.UsuarioDTO;
-import arqui.web.grupo_9.usuario.model.entities.Usuario;
+import arqui.web.grupo_9.model.dto.UsuarioDTO;
+import arqui.web.grupo_9.model.entities.Usuario;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,7 +12,7 @@ public class UsuarioConverter extends ConverterDTO<Usuario, UsuarioDTO> {
         if(e == null)
             return null;
 
-        return new UsuarioDTO(e.getNombre(), e.getApellido(), e.getNroCelular(), e.getEmail(), e.getCuentasMp());
+        return new UsuarioDTO(e.getIdUsuario(), e.getNombre(), e.getApellido(), e.getNroCelular(), e.getEmail(), e.getCuentasMp());
     }
 
     @Override
@@ -20,6 +20,6 @@ public class UsuarioConverter extends ConverterDTO<Usuario, UsuarioDTO> {
         if(d == null)
             return null;
 
-        return new Usuario(null, d.getNombre(), d.getApellido(), d.getNroCelular(), d.getEmail(), d.getCuentasMp());
+        return new Usuario(d.getIdUsuario(), d.getNombre(), d.getApellido(), d.getNroCelular(), d.getEmail());
     }
 }

@@ -1,5 +1,6 @@
-package arqui.web.grupo_9.viaje.service.exceptions;
+package arqui.web.grupo_9.service.exceptions;
 
+import arqui.web.grupo_9.controller.ControllerAdvice;
 import lombok.Getter;
 
 /**
@@ -16,7 +17,7 @@ import lombok.Getter;
  * </p>
  *
  * @see MyException
- * @see arqui.web.grupo_9.viaje.controller.ControllerAdvice
+ * @see ControllerAdvice
  */
 @Getter
 public class NotFoundViajeException extends MyException {

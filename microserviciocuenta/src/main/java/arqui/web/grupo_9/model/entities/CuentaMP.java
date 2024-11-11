@@ -1,11 +1,11 @@
-package arqui.web.grupo_9.usuario.model.entities;
+package arqui.web.grupo_9.model.entities;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.LinkedList;
 import java.util.List;
 
 @Entity
@@ -35,6 +35,12 @@ public class CuentaMP {
         this.idCuentaMP = idCuentaMP;
         this.saldo = saldo;
         this.usuarios = usuarios;
+    }
+
+    public CuentaMP(Long idCuentaMP, Double saldo) {
+        this.idCuentaMP = idCuentaMP;
+        this.saldo = saldo;
+        this.usuarios = new LinkedList<>();
     }
 
     public boolean tieneUsuario(Usuario u) {

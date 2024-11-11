@@ -1,9 +1,10 @@
-package arqui.web.grupo_9.usuario.controllers;
+package arqui.web.grupo_9.controllers;
 
-import arqui.web.grupo_9.usuario.model.dto.UsuarioDTO;
-import arqui.web.grupo_9.usuario.model.dto.converters.UsuarioConverter;
-import arqui.web.grupo_9.usuario.model.entities.Usuario;
-import arqui.web.grupo_9.usuario.services.UsuarioService;
+import arqui.web.grupo_9.model.dto.UsuarioDTO;
+import arqui.web.grupo_9.model.dto.converters.UsuarioConverter;
+import arqui.web.grupo_9.model.entities.Usuario;
+import arqui.web.grupo_9.services.CuentaMpService;
+import arqui.web.grupo_9.services.UsuarioService;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +16,12 @@ import java.util.List;
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
     private UsuarioService usuarioService;
+    private CuentaMpService cuentaService;
     private UsuarioConverter converter;
 
-    public UsuarioController(UsuarioService usuarioService, @Lazy UsuarioConverter converter) {
+    public UsuarioController(UsuarioService usuarioService, @Lazy CuentaMpService cuentaService, @Lazy UsuarioConverter converter) {
         this.usuarioService = usuarioService;
+        this.cuentaService = cuentaService;
         this.converter = converter;
     }
 
@@ -50,6 +53,12 @@ public class UsuarioController {
     @PutMapping("/{idUsuario}")
     public ResponseEntity<Boolean> updateById(@PathVariable Long idUsuario, @RequestBody UsuarioDTO uModified) {
         return new ResponseEntity<>(this.usuarioService.updateById(idUsuario, this.converter.fromDTO(uModified)), HttpStatus.OK);
+    }
+
+    @PutMapping("/{idUsuario}/asociar/cuenta/{idCuentaMP}")
+    public ResponseEntity<Boolean> asociarCuentaAUsuario(@PathVariable Long idUsuario, @PathVariable Long idCuentaMP) {
+        this.cuentaService.estaHabilitada(idCuentaMP);
+        return new ResponseEntity<>(this.usuarioService.asociarCuenta(idUsuario, idCuentaMP), HttpStatus.OK);
     }
 
     @PutMapping("/{idUsuario}/eliminar/cuenta/{idCuentaMP}")

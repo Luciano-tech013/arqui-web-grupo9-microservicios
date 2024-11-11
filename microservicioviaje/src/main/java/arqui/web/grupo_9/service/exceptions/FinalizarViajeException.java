@@ -1,4 +1,4 @@
-package arqui.web.grupo_9.viaje.service.exceptions;
+package arqui.web.grupo_9.service.exceptions;
 
 /**
  * Excepción personalizada que se lanza cuando ocurre un error al intentar finalizar un viaje.

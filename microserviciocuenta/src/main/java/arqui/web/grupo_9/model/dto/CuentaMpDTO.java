@@ -1,6 +1,6 @@
-package arqui.web.grupo_9.usuario.model.dto;
+package arqui.web.grupo_9.model.dto;
 
-import arqui.web.grupo_9.usuario.model.entities.Usuario;
+import arqui.web.grupo_9.model.entities.Usuario;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

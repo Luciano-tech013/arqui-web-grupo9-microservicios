@@ -1,4 +1,4 @@
-package arqui.web.grupo_9.usuario.model.dto.converters;
+package arqui.web.grupo_9.model.dto.converters;
 
 import java.util.List;
 import java.util.stream.Collectors;

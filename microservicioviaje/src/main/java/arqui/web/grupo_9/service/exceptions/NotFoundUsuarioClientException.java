@@ -1,6 +1,4 @@
-package arqui.web.grupo_9.viaje.service.exceptions;
-
-import arqui.web.grupo_9.viaje.service.exceptions.MyException;
+package arqui.web.grupo_9.service.exceptions;
 
 /**
  * Excepción personalizada que indica que no se ha encontrado el usuario especificado en el cliente.

@@ -1,11 +1,11 @@
-package arqui.web.grupo_9.usuario.services;
+package arqui.web.grupo_9.services;
 
-import arqui.web.grupo_9.usuario.model.entities.CuentaMP;
-import arqui.web.grupo_9.usuario.model.entities.Usuario;
-import arqui.web.grupo_9.usuario.repositories.IUsuarioRepository;
-import arqui.web.grupo_9.usuario.services.exceptions.CouldNotRegisterException;
-import arqui.web.grupo_9.usuario.services.exceptions.NotFoundCuentaException;
-import arqui.web.grupo_9.usuario.services.exceptions.NotFoundUsuarioException;
+import arqui.web.grupo_9.model.entities.CuentaMP;
+import arqui.web.grupo_9.model.entities.Usuario;
+import arqui.web.grupo_9.repositories.IUsuarioRepository;
+import arqui.web.grupo_9.services.exceptions.CouldNotRegisterException;
+import arqui.web.grupo_9.services.exceptions.NotFoundCuentaException;
+import arqui.web.grupo_9.services.exceptions.NotFoundUsuarioException;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +57,19 @@ public class UsuarioService {
         u.setNroCelular(usuarioModified.getNroCelular());
         u.setCuentasMp(u.getCuentasMp());
 
-        return true;
+        return this.save(u);
+    }
+
+    public boolean asociarCuenta(Long idUsuario, Long idCuentaMP) {
+        Usuario u = this.findById(idUsuario);
+        CuentaMP cuenta = this.cuentaMpService.findByIdCuenta(idCuentaMP);
+
+        cuenta.registrarUsuario(u);
+        u.asociarCuenta(cuenta);
+        this.save(u);
+        this.cuentaMpService.saveCuenta(cuenta);
+
+        return cuenta.tieneUsuario(u);
     }
 
     public boolean eliminarCuentaDeUsuario(Long idUsuario, Long idCuentaMP) {
@@ -68,6 +80,7 @@ public class UsuarioService {
             throw new NotFoundCuentaException("La cuenta solicitada para eliminar no esta cargada en el sistema", "La cuenta que intentas eliminar no esta asociada al usuario indicado", "low");
 
         usuario.eliminarCuenta(cuenta);
+        cuenta.eliminarUsuario(usuario);
 
         if(usuario.tieneCuenta(cuenta))
             throw new CouldNotRegisterException("No se puedo deshacer la cuenta del usuario indicado", "No se puedo eliminar la cuenta del usuario indicado. Por favor intenta mas tarde", "high");

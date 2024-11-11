@@ -1,4 +1,4 @@
-package arqui.web.grupo_9.viaje.clients;
+package arqui.web.grupo_9.clients;
 
 /*
 @FeignClient(name = "microserviciocuenta")

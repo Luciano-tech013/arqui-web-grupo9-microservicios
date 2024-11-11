@@ -1,4 +1,4 @@
-package arqui.web.grupo_9.viaje.model.entities;
+package arqui.web.grupo_9.model.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -43,7 +43,7 @@ public class Viaje {
     public static final double PRECIO_BASE = 10.00;
 
     @Transient
-    private static final double PRECIO_RECARGO = 0.00;
+    public static final double PRECIO_RECARGO = 5.00;
 
     @Transient
     private static final double TIEMPO_PAUSA_PERMITIDO = 15;

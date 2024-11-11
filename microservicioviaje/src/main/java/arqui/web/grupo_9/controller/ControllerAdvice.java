@@ -1,7 +1,8 @@
-package arqui.web.grupo_9.viaje.controller;
+package arqui.web.grupo_9.controller;
 
-import arqui.web.grupo_9.viaje.model.dto.ExcepcionDTO;
-import arqui.web.grupo_9.viaje.service.exceptions.*;
+import arqui.web.grupo_9.service.exceptions.*;
+import arqui.web.grupo_9.model.dto.ExcepcionDTO;
+import arqui.web.grupo_9.service.exceptions.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,7 +38,7 @@ public class ControllerAdvice {
      * @return {@code ResponseEntity<ExcepcionDTO>}: Un objeto especial de Spring Boot que envuelve el objeto de error de tipo
      * {@code ErrorDTO} y proporciona una respuesta estructurada en formato JSON, junto con el código de estado {@code HttpStatus.NOT_FOUND}.
      *
-     * @see arqui.web.grupo_9.viaje.service.exceptions.NotFoundViajeException
+     * @see NotFoundViajeException
      * @see ExcepcionDTO
      * @see HttpStatus#NOT_FOUND
      */
@@ -114,6 +115,24 @@ public class ControllerAdvice {
         return new ResponseEntity<>(this.createExceptionDTO(ex.getUserMessage(), ex.getSeverity()), HttpStatus.BAD_REQUEST);
     }
 
+    /**
+     * Manejador de excepciones para fechas no encontradas en el sistema.
+     * <p>
+     * Este método se ejecuta cuando se lanza una excepción de tipo {@code NotFoundFechaException}
+     * debido a que un mes o año solicitado no está registrado en el sistema.
+     * Al interceptar esta excepción, se construye un objeto {@code ExcepcionDTO} con un mensaje
+     * amigable para el usuario y el nivel de severidad, y se devuelve una respuesta con el estado
+     * {@code HttpStatus.BAD_REQUEST}.
+     * </p>
+     *
+     * @param ex La excepción {@code NotFoundFechaException} que fue lanzada.
+     * @return Un objeto {@code ResponseEntity<ExcepcionDTO>} que contiene el mensaje para el usuario
+     * y la severidad de la excepción, junto con un código de estado HTTP 400 (BAD_REQUEST).
+     */
+    @ExceptionHandler(value = NotFoundFechaException.class)
+    public ResponseEntity<ExcepcionDTO> notFoundFechaExceptionHandler(NotFoundFechaException ex) {
+        return new ResponseEntity<>(this.createExceptionDTO(ex.getUserMessage(), ex.getSeverity()), HttpStatus.BAD_REQUEST);
+    }
 
     /**
      * Método auxiliar para crear un {@code ExcepcionDTO}.

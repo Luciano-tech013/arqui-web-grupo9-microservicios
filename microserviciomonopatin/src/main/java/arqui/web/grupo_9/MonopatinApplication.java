@@ -1,4 +1,4 @@
-package arqui.web.grupo_9.monopatin;
+package arqui.web.grupo_9;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,18 +1,23 @@
-package arqui.web.grupo_9.viaje.service;
+package arqui.web.grupo_9.service;
 
 /*import arqui.web.grupo_9.viaje.clients.MonopatinFeignClient;
 import arqui.web.grupo_9.viaje.clients.UsuarioFeignClient;*/
-import arqui.web.grupo_9.viaje.model.entities.Viaje;
-import arqui.web.grupo_9.viaje.model.clients.MonopatinClient;
-import arqui.web.grupo_9.viaje.model.clients.CuentaMPClient;
-import arqui.web.grupo_9.viaje.repository.IViajeRepository;
-import arqui.web.grupo_9.viaje.service.exceptions.*;
+import arqui.web.grupo_9.model.entities.Viaje;
+import arqui.web.grupo_9.model.clients.MonopatinClient;
+import arqui.web.grupo_9.model.clients.CuentaMPClient;
+import arqui.web.grupo_9.repository.IViajeRepository;
+import arqui.web.grupo_9.service.exceptions.FinalizarViajeException;
+import arqui.web.grupo_9.service.exceptions.NotFoundMonopatinClientException;
+import arqui.web.grupo_9.service.exceptions.NotFoundUsuarioClientException;
+import arqui.web.grupo_9.service.exceptions.NotFoundViajeException;
+import arqui.web.grupo_9.service.exceptions.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
@@ -24,12 +29,16 @@ public class ViajeService {
     private static double kmsRecorridos;
     private static Viaje viajeGenerado;
     private static AtomicBoolean viajeEnCurso;
+    private static AtomicBoolean viajePausado;
+    private static AtomicBoolean viajePausadoConRecargo;
 
     public ViajeService(IViajeRepository repository) {
         this.repository = repository;
         //this.usuarioClient = usuarioClient;
         //this.monopatinClient = monopatinClient;
         viajeEnCurso = new AtomicBoolean(false);
+        viajePausado = new AtomicBoolean(false);
+        viajePausadoConRecargo = new AtomicBoolean(false);
     }
 
     public List<Viaje> findAll() {
@@ -55,21 +64,6 @@ public class ViajeService {
         return true;
     }
 
-    /*public boolean updateById(Long idViaje, Viaje viajeModified) {
-        Viaje viaje = this.findById(idViaje);
-
-        viaje.setFechaIniViaje(viajeModified.getFechaIniViaje());
-        viaje.setFechaFinViaje(viajeModified.getFechaFinViaje());
-        viaje.setKmsRecorridos(viajeModified.getKmsRecorridos());
-        viaje.setCostoTotal(viajeModified.getCostoTotal());
-        viaje.setFechaIniViajeConPausa(viajeModified.getFechaIniViajeConPausa());
-        viaje.setFechaFinViajeConPausa(viajeModified.getFechaFinViajeConPausa());
-        viaje.setIdUsuario(viajeModified.getIdUsuario());
-        viaje.setIdMonopatin(viajeModified.getIdMonopatin());
-
-        return this.save(viaje);
-    }*/
-
     public boolean generar(Long idCuenta, Long idMonopatin) {
         CuentaMPClient cuenta = new CuentaMPClient();
         MonopatinClient monopatin = new MonopatinClient();
@@ -93,16 +87,54 @@ public class ViajeService {
         return true;
     }
 
-    // Método programado que se ejecuta cada segundo para descontar crédito y aumentar kilómetros
-    @Scheduled(fixedRate = 1000)
-    public synchronized void actualizarViajeEnCurso() {
-        if(viajeEnCurso.get()) {
-            creditoDescontado += Viaje.PRECIO_BASE;
-            kmsRecorridos += 1;
-        }
+    public boolean pausar() {
+        viajePausado.set(true);
+
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                //Si el viaje sigue estando pausado
+                if(viajePausado.get())
+                    viajePausadoConRecargo.set(true);
+            }
+        };
+
+        //timer.schedule(task, 900000);
+        timer.schedule(task, 15000);
+        return true;
     }
 
-    public boolean finalizar() {
+    public boolean despausar() {
+        if(viajePausadoConRecargo.get())
+            viajePausadoConRecargo.set(false);
+
+        viajePausado.set(false);
+        return true;
+    }
+
+    @Scheduled(fixedRate = 1000)
+    public synchronized void actualizarViajeEnCurso() {
+        if (!viajeEnCurso.get())
+            return;
+
+        double incrementoCredito = Viaje.PRECIO_BASE;
+
+        // Si el viaje está pausado, verifica si aplica recargo
+        if (viajePausado.get()) {
+            incrementoCredito += viajePausadoConRecargo.get() ? Viaje.PRECIO_RECARGO : 0;
+        } else {
+            // Solo aumenta kilómetros si el viaje no está pausado
+            kmsRecorridos += 1;
+        }
+
+        creditoDescontado += incrementoCredito;
+        System.out.println(creditoDescontado);
+        System.out.println(kmsRecorridos);
+    }
+
+
+    public Viaje finalizar() {
         if (!viajeEnCurso.get())
             throw new FinalizarViajeException("Se intentó finalizar un viaje que no fue generado aún", "Para finalizar un viaje, primero debes generarlo.", "high");
 
@@ -110,17 +142,38 @@ public class ViajeService {
         viajeGenerado.setFechaFinViaje(LocalDateTime.now());
         viajeGenerado.setCostoTotal(creditoDescontado);
         viajeGenerado.setKmsRecorridos(kmsRecorridos);
-        this.save(viajeGenerado);
 
-        //setearle el credito al usuario
-        return true;
+        //APLICAR CREDITO DESCONTADO AL USUARIO
+        //APLICAR LOS KMS RECORRIDOS AL MONOPATIN
+        if(this.save(viajeGenerado))
+            return this.findById(viajeGenerado.getIdViaje());
+
+        return null;
     }
 
-    public List<Long> getCantViajesOfMonopatinByAnio(int anio, int cantViajes) {
-        return this.repository.getMonopatinesByCantViajesAndAnio(anio, cantViajes);
+    public List<Long> getMonopatinesByCantViajesInOneYear(int anio, int cantViajes) {
+        return this.repository.getMonopatinesByCantViajesInOneYear(anio, cantViajes);
     }
 
-    public double getTotalFacturadoByMesesOfAnio(int mesIni, int mesFin, int anio) {
-        return this.repository.getTotalFacturadoByMesesOfAnio(mesIni, mesFin, anio);
+    public double getTotalFacturadoByMesesInOneYear(int mesIni, int mesFin, int anio) {
+        try {
+            double total = this.repository.getTotalFacturadoByMesesInOneYear(mesIni, mesFin, anio);
+            return total;
+        } catch(Exception e) {
+            throw new NotFoundFechaException("Los meses o el año enviado no estaban cargados en el sistema", "No se encontro ningun viaje registrado en la fecha de facturacion enviada. Por favor, envia otra fecha", "high");
+        }
+    }
+
+    //METODOS PARA EL TESTING
+    public AtomicBoolean isViajeEnCurso() {
+        return viajeEnCurso;
+    }
+
+    public double getCreditoDescontado() {
+        return creditoDescontado;
+    }
+
+    public double getKmsRecorridos() {
+        return kmsRecorridos;
     }
 }

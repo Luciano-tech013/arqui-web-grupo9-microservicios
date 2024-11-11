@@ -1,11 +1,12 @@
-package arqui.web.grupo_9.viaje.controller;
+package arqui.web.grupo_9.controller;
 
-import arqui.web.grupo_9.viaje.model.dto.ViajeDTO;
-import arqui.web.grupo_9.viaje.model.dto.converter.ViajeConverter;
-import arqui.web.grupo_9.viaje.model.entities.Viaje;
-import arqui.web.grupo_9.viaje.service.ViajeService;
+import arqui.web.grupo_9.model.dto.ViajeDTO;
+import arqui.web.grupo_9.model.dto.converter.ViajeConverter;
+import arqui.web.grupo_9.model.entities.Viaje;
+import arqui.web.grupo_9.service.ViajeService;
 
-import arqui.web.grupo_9.viaje.service.exceptions.NotFoundViajeException;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,25 +44,44 @@ public class ViajeController {
         return new ResponseEntity<>(this.service.deleteById(idViaje), HttpStatus.OK);
     }
 
-    /*@PutMapping("/{idViaje}")
-    public ResponseEntity<Boolean> updateById(@PathVariable Long idViaje, @RequestBody Viaje viajeModified) {
-        if(this.service.findById(idViaje) == null)
-            throw new NotFoundViajeException("El id enviado es incorrecto, no existe en la tabla viaje", "El viaje solicitado nunca fue generado. Por favor, solicita un viaje finalizado", "low");
-
-        if(viajeModified == null)
-            throw new BodyViajeException("El body enviado esta vacio", "Debe actualizar algun campo. Por favor, actualiza algun valor", "high");
-
-        return new ResponseEntity<>(this.service.updateById(idViaje, viajeModified), HttpStatus.OK);
-    }*/
-
     @GetMapping("/generar/{idUsuario}/{idMonopatin}")
     public ResponseEntity<Boolean> generarViaje(@PathVariable Long idUsuario, @PathVariable Long idMonopatin) {
         return new ResponseEntity<>(this.service.generar(idUsuario, idMonopatin), HttpStatus.OK);
     }
 
     @GetMapping("/finalizar/viaje")
-    public ResponseEntity<Boolean> finalizarViaje() {
-        return new ResponseEntity<>(this.service.finalizar(), HttpStatus.OK);
+    public ResponseEntity<ViajeDTO> finalizarViaje() {
+        return new ResponseEntity<>(this.converter.fromEntity(this.service.finalizar()), HttpStatus.OK);
     }
 
+    @GetMapping("/pausar/viaje")
+    public ResponseEntity<Boolean> pausarViaje() {
+        return new ResponseEntity<>(this.service.pausar(), HttpStatus.OK);
+    }
+
+    @GetMapping("/despausar/viaje")
+    public ResponseEntity<Boolean> despausarViaje() {
+        return new ResponseEntity<>(this.service.despausar(), HttpStatus.OK);
+    }
+
+    @GetMapping("/monopatines/")
+    public ResponseEntity<List<Long>> getMonopatinesByCantViajesInoneYear(
+            @RequestParam(name = "anio", required = true) @NotEmpty(message = "El anio no puede ser vacio") @Positive(message = "El anio no puede ser negatvivo") int anio,
+            @RequestParam(name = "cant_viajes", required = true) @NotEmpty(message = "La cantidad no puede ser negativa") @Positive(message = "El anio no puede ser negativo") int cantViajes) {
+
+        List<Long> monopatines = this.service.getMonopatinesByCantViajesInOneYear(anio, cantViajes);
+        if(monopatines.isEmpty())
+            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+
+        return new ResponseEntity<>(monopatines, HttpStatus.OK);
+    }
+
+    @GetMapping("/facturacion")
+    public ResponseEntity<Double> getTotalFacturadoByMesesInOneYear(
+            @RequestParam(name = "desde", required = true) @NotEmpty(message = "La fecha de inicio no puede ser vacia") @Positive(message = "El mes de inicio no puede ser negativo") int mesIni,
+            @RequestParam(name = "hasta", required = true) @NotEmpty(message = "La fecha de fin no puede ser vacia") @Positive(message = "El mes de fin no puede ser negativo") int mesFin,
+            @RequestParam(name = "anio", required = true) @NotEmpty(message = "El año no puede ser vacio") @Positive(message = "El anio no puede ser negativo") int anio) {
+
+        return new ResponseEntity<>(this.service.getTotalFacturadoByMesesInOneYear(mesIni, mesFin, anio), HttpStatus.OK);
+    }
 }

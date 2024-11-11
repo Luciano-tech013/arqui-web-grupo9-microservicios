@@ -1,6 +1,4 @@
-package arqui.web.grupo_9.viaje.service.exceptions;
-
-import arqui.web.grupo_9.viaje.service.exceptions.MyException;
+package arqui.web.grupo_9.service.exceptions;
 
 /**
  * Excepción personalizada que indica que el saldo disponible es insuficiente para completar una operación.

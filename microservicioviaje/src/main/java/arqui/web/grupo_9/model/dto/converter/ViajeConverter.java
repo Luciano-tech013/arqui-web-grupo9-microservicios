@@ -1,7 +1,7 @@
-package arqui.web.grupo_9.viaje.model.dto.converter;
+package arqui.web.grupo_9.model.dto.converter;
 
-import arqui.web.grupo_9.viaje.model.dto.ViajeDTO;
-import arqui.web.grupo_9.viaje.model.entities.Viaje;
+import arqui.web.grupo_9.model.dto.ViajeDTO;
+import arqui.web.grupo_9.model.entities.Viaje;
 import org.springframework.stereotype.Component;
 
 @Component

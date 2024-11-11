@@ -1,4 +1,4 @@
-package arqui.web.grupo_9.viaje.model.dto;
+package arqui.web.grupo_9.model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

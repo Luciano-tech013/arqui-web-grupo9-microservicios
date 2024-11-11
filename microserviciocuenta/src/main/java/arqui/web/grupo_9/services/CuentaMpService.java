@@ -1,12 +1,9 @@
-package arqui.web.grupo_9.usuario.services;
+package arqui.web.grupo_9.services;
 
-import arqui.web.grupo_9.usuario.model.entities.CuentaMP;
-import arqui.web.grupo_9.usuario.model.entities.Usuario;
-import arqui.web.grupo_9.usuario.services.exceptions.CouldNotRegisterException;
-import arqui.web.grupo_9.usuario.services.exceptions.NotFoundCuentaException;
-import arqui.web.grupo_9.usuario.services.exceptions.NotFoundUsuarioException;
-import arqui.web.grupo_9.usuario.services.exceptions.UsuarioYaRegistradoException;
-import arqui.web.grupo_9.usuario.repositories.ICuentaMpRepository;
+import arqui.web.grupo_9.model.entities.CuentaMP;
+import arqui.web.grupo_9.model.entities.Usuario;
+import arqui.web.grupo_9.services.exceptions.*;
+import arqui.web.grupo_9.repositories.ICuentaMpRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
@@ -46,29 +43,17 @@ public class CuentaMpService {
 
         mp.registrarUsuario(u);
         u.asociarCuenta(mp);
+        mp.setSaldo(0.00);
 
-        if(mp.tieneUsuario(u) && u.tieneCuenta(mp))
+        if(mp.tieneUsuario(u) && u.tieneCuenta(mp)) {
+            this.usuarioService.save(u);
             return this.saveCuenta(mp);
+        }
 
         throw new CouldNotRegisterException("No se registro el usuario en la cuenta y no se puedo asociarlo", "No se puedo crear la cuenta. Por favor intenta mas tarde", "high");
     }
 
-    public boolean eliminarUsuarioDeCuenta(Long idCuentaMP, Long idUsuario) {
-        Usuario u = this.usuarioService.findById(idUsuario);
-        CuentaMP cuenta = this.findByIdCuenta(idCuentaMP);
-
-        if(!cuenta.tieneUsuario(u))
-            throw new NotFoundUsuarioException("El usuario solicitado para eliminar no esta cargado en el sistema", "El usuario que intentas eliminar no existe en la cuenta", "low");
-
-        cuenta.eliminarUsuario(u);
-
-        if(cuenta.tieneUsuario(u))
-            throw new CouldNotRegisterException("No se puedo elimnar el usuario de la cuenta", "No se eliminar el usuario de la cuenta solicitada. Por favor intenta mas tarde", "high");
-
-        return this.saveCuenta(cuenta);
-    }
-
-    private boolean saveCuenta(CuentaMP cuentaMP) {
+    public boolean saveCuenta(CuentaMP cuentaMP) {
         this.cuentaMpRepository.save(cuentaMP);
         return true;
     }
@@ -111,6 +96,6 @@ public class CuentaMpService {
             return true;
         }
 
-        return false;
+        throw new CuentaInhabilitadaException("La cuenta no esta habiltiada", "La cuenta que intentas asociar no se encuentra habilitada", "high");
     }
 }

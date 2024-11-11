@@ -1,15 +1,15 @@
-package arqui.web.grupo_9.usuario.model.entities;
+package arqui.web.grupo_9.model.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
-@AllArgsConstructor
+@Getter @Setter
 @Table(name = "usuario")
 public class Usuario {
     @Id
@@ -33,6 +33,14 @@ public class Usuario {
     private List<CuentaMP> cuentasMp;
 
     public Usuario() {
+    }
+
+    public Usuario(Long idUsuario, String nombre, String apellido, String nroCelular, String email) {
+        this.idUsuario = idUsuario;
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.nroCelular = nroCelular;
+        this.email = email;
     }
 
     public boolean tieneCuenta(CuentaMP cuenta) {
