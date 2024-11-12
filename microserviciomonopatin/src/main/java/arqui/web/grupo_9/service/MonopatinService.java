@@ -1,11 +1,17 @@
 package arqui.web.grupo_9.service;
 
+import arqui.web.grupo_9.client.ViajeFeignClient;
+import arqui.web.grupo_9.model.dto.MonopatinDTO;
+import arqui.web.grupo_9.model.dto.ReporteUsoDTO;
 import arqui.web.grupo_9.model.entities.Monopatin;
 import arqui.web.grupo_9.repository.IMonopatinRepository;
 import arqui.web.grupo_9.service.exceptions.NotFoundMonopatinException;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,10 +19,12 @@ import java.util.Optional;
 public class MonopatinService {
 
     private IMonopatinRepository repository;
+    private ViajeFeignClient viajeClient;
 
 
-    public MonopatinService(IMonopatinRepository repository) {
+    public MonopatinService(IMonopatinRepository repository, @Lazy ViajeFeignClient viajeClient) {
         this.repository = repository;
+        this.viajeClient = viajeClient;
     }
 
     public List<Monopatin> findAll() {
@@ -59,5 +67,32 @@ public class MonopatinService {
 
     public List<Monopatin> getMonopatinesByUbicacion(double latitud, double longitud) {
         return this.repository.findAllByUbicacion(latitud, longitud);
+    }
+
+    public List<ReporteUsoDTO> getMonopatinesByUso(boolean conPausa) {
+        List<ReporteUsoDTO> reportes = new LinkedList<>();
+
+        //obtengo los monopatines en operacion ordenados por mayor cantidad de kms recorridos
+        List<Monopatin> monopatines = this.repository.findAllByUso();
+
+        //Si la tabla de monopatines no tiene nada, me ahorro null pointer exception
+        if(monopatines.isEmpty())
+            return null;
+
+        //por cada monopatin obtenido
+        for(Monopatin m : monopatines) {
+            //Si solicitaron incluir tiempo con pausa
+            if(conPausa) {
+                //obtengo el tiempo total pausado de ese monopatin pegandole al microservicio de viajes, quien es el que posee ese dato y me lo devuelve ya calculado
+                LocalDateTime tiempoConPausa = this.viajeClient.getTiempoTotalPausadoDeMonopatin(m.getIdMonopatin());
+                //genero el reporte con los kms y el tiempo de uso
+                reportes.add(new ReporteUsoDTO(m.getIdMonopatin(), m.getKmsRecorridos(), tiempoConPausa, m.getEstado()));
+            } else {
+                //Si no, genero el reporte solamente con los kms
+                reportes.add(new ReporteUsoDTO(m.getIdMonopatin(), m.getKmsRecorridos(), null, m.getEstado()));
+            }
+        }
+
+        return reportes;
     }
 }

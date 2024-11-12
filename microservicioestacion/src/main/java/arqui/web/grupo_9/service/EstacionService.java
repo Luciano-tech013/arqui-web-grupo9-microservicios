@@ -58,16 +58,8 @@ public class EstacionService {
         return this.estacionRepository.getEstacionsByUbicacion(latitud, longitud);
     }
 
-    public Set<MonopatinDTO> getMonopatinesByUbicacion(List<Estacion> estaciones) {
-        Set<MonopatinDTO> monopatines = new LinkedHashSet<>();
-
-        for(Estacion e : estaciones) {
-            List<MonopatinDTO> obtenidos = this.monopatinClient.getMonopatinesByUbicacion(e.getLatitud(), e.getLongitud()).getBody();
-            if(obtenidos != null)
-                monopatines.addAll(obtenidos);
-        }
-
-        return monopatines;
+    public List<MonopatinDTO> getMonopatinesByUbicacion(double latitud, double longitud) {
+        return this.monopatinClient.getMonopatinesByUbicacion(latitud, longitud).getBody();
     }
 
 }

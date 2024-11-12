@@ -46,8 +46,9 @@ public class ViajeController {
         return new ResponseEntity<>(this.service.deleteById(idViaje), HttpStatus.OK);
     }
 
-    @PostMapping("/generar/{idUsuario}/{idMonopatin}")
+    @PostMapping("/generar/usuario/{idUsuario}/monopatin/{idMonopatin}")
     public ResponseEntity<Boolean> generarViaje(@PathVariable Long idUsuario, @PathVariable Long idMonopatin) {
+        System.out.println("Hasta aca llegue!!");
         return new ResponseEntity<>(this.service.generar(idUsuario, idMonopatin), HttpStatus.OK);
     }
 
@@ -93,5 +94,10 @@ public class ViajeController {
             @RequestParam(name = "precio", required = true) @NotEmpty(message = "El precio no es valido") @Positive(message = "El precio no puede ser negativo") double precio) {
 
         return new ResponseEntity<>(this.service.ajustarPrecioParaUnaFecha(aPartirDe, precio), HttpStatus.OK);
+    }
+
+    @GetMapping("/monopatin/reporte/tiempopausado/{idMonopatin}")
+    public ResponseEntity<> getTiempoTotalPausadoDeMonopatin(@PathVariable Long idMonopatin) {
+        this.service.getTiempoTotalPausadoDeMonopatin(idMonopatin);
     }
 }

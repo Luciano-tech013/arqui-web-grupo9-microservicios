@@ -43,6 +43,7 @@ public class UsuarioController {
 
     @PostMapping
     public ResponseEntity<Boolean> save(@RequestBody @Valid UsuarioDTO u) {
+        System.out.println("HOLAAAA HASTA ACA LLEGUE");
         return new ResponseEntity<>(this.usuarioService.save(this.converter.fromDTO(u)), HttpStatus.CREATED);
     }
 

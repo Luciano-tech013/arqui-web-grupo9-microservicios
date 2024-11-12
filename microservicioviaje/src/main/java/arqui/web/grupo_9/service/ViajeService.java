@@ -72,13 +72,13 @@ public class ViajeService {
 
     public boolean generar(Long idCuenta, Long idMonopatin) {
         try {
-            cuenta = cuentaClient.findById(idCuenta);
+            cuenta = cuentaClient.findById(idCuenta).getBody();
         } catch(FeignException.FeignClientException ex) {
             throw new NotFoundUsuarioClientException("El usuario no está en el sistema", "No se pudo generar el viaje. Verifica los datos.", "high");
         }
 
         try {
-            monopatin = monopatinClient.findById(idMonopatin);
+            monopatin = monopatinClient.findById(idMonopatin).getBody();
         } catch(FeignException.FeignClientException ex) {
             throw new NotFoundMonopatinClientException("El monopatín no está en el sistema", "No se pudo generar el viaje. Verifica el monopatín.", "high");
         }
@@ -178,7 +178,7 @@ public class ViajeService {
 
         List<MonopatinDTO> monopatinesObtenidos = new LinkedList<>();
         for(Long id : idMonopatines) {
-            monopatinesObtenidos.add(monopatinClient.findById(id));
+            monopatinesObtenidos.add(monopatinClient.findById(id).getBody());
         }
 
         return monopatinesObtenidos;
@@ -196,6 +196,13 @@ public class ViajeService {
         nuevoPrecio = precio;
         fechaNueva = fecha;
         return true;
+    }
+
+    public LocalDateTime getTiempoTotalPausadoDeMonopatin(Long idMonopatin) {
+        //obtengo todos los tiempos de pausa de ese monopatin (inicio y fin)
+        this.repository.getTiemposPausadosDeMonopatin(idMonopatin);
+
+        //calcular el tiempo TOTAL de pausa
     }
 
     //METODOS PARA EL TESTING

@@ -2,6 +2,7 @@ package arqui.web.grupo_9.controller;
 
 import arqui.web.grupo_9.model.clients.MonopatinDTO;
 import arqui.web.grupo_9.model.dto.EstacionDTO;
+import arqui.web.grupo_9.model.dto.ReporteDTO;
 import arqui.web.grupo_9.model.dto.converter.EstacionConverter;
 import arqui.web.grupo_9.model.entities.Estacion;
 import arqui.web.grupo_9.service.EstacionService;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -56,7 +58,7 @@ public class EstacionController {
     }
 
     @GetMapping("/ubicacion")
-    public ResponseEntity<Set<MonopatinDTO>> getMonopatinesByUbicacion(
+    public ResponseEntity<List<ReporteDTO>> getMonopatinesByUbicacion(
             @RequestParam(name = "latitud", required = true) @NotEmpty(message = "La latitud enviada no es valida") Double latitud,
             @RequestParam(name = "longitud", required = true) @NotEmpty(message = "La longitud enviada no es valida") Double longitud){
 
@@ -66,8 +68,11 @@ public class EstacionController {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
 
-        Set<MonopatinDTO> monopatines = this.estacionService.getMonopatinesByUbicacion(estaciones);
-        //podria pensar en retornar un DTO que muestre la estacion con sus monopatines cercanos
-        return new ResponseEntity<>(monopatines, HttpStatus.OK);
+        List<ReporteDTO> reportes = new LinkedList<>();
+        for(Estacion e : estaciones) {
+            reportes.add(new ReporteDTO(this.converter.fromEntity(e), this.estacionService.getMonopatinesByUbicacion(e.getLatitud(), e.getLongitud())));
+        }
+
+        return new ResponseEntity<>(reportes, HttpStatus.OK);
     }
 }

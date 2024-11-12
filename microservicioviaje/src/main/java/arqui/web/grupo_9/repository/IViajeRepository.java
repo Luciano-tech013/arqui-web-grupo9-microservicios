@@ -14,4 +14,7 @@ public interface IViajeRepository extends JpaRepository<Viaje, Long> {
 
     @Query("SELECT SUM(v.costoTotal) FROM Viaje v WHERE MONTH(v.fechaFinViaje) >= :mesIni AND MONTH(v.fechaFinViaje) <= :mesFin AND YEAR(v.fechaFinViaje) = :anio")
     Double getTotalFacturadoByMesesInOneYear(int mesIni, int mesFin, int anio);
+
+    @Query("SELECT v.idMonopatin, v.fechaIniViajeConPausa, v.fechaFinViajeConPausa FROM Viaje v WHERE v.idMonopatin = :idMonopatin")
+    List<Object[]> getTiemposPausadosDeMonopatin(Long idMonopatin);
 }

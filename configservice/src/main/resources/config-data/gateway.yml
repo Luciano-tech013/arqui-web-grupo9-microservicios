@@ -15,12 +15,12 @@ spring:
     gateway:
       mvc:
         routes:
-          - id: microserviciocuenta
+          - id: microserviciocuenta_mp
             uri: lb://microserviciocuenta
             predicates:
-              - Path=/api/mercadopago/api/cuentas/**
+              - Path=/mercadopago/api/cuentas/**
 
-          - id: microserviciocuenta
+          - id: microserviciocuenta_usuarios
             uri: lb://microserviciocuenta
             predicates:
               - Path=/api/usuarios/**

@@ -2,6 +2,7 @@ package arqui.web.grupo_9.controller;
 
 import arqui.web.grupo_9.model.dto.MonopatinDTO;
 import arqui.web.grupo_9.model.dto.ReporteEstadoDTO;
+import arqui.web.grupo_9.model.dto.ReporteUsoDTO;
 import arqui.web.grupo_9.model.dto.converter.MonopatinConverter;
 import arqui.web.grupo_9.model.entities.Monopatin;
 import arqui.web.grupo_9.service.MonopatinService;
@@ -65,11 +66,16 @@ public class MonopatinController {
         return new ResponseEntity<>(reporte, HttpStatus.OK);
     }
 
-    @GetMapping("/api/monopatines/ubicacion")
+    @GetMapping("/ubicacion")
     public ResponseEntity<List<MonopatinDTO>> getMonopatinesByUbicacion(@RequestParam(name = "latitud", required = true) @NotEmpty(message = "La latitud enviada no es valida") Double latitud,
                                                                         @RequestParam(name = "longitud", required = true) @NotEmpty(message = "La longitud enviada no es valida") Double longitud) {
         List<Monopatin> monopatines = this.monopatinService.getMonopatinesByUbicacion(latitud, longitud);
         return new ResponseEntity<>(this.converter.fromEntity(monopatines), HttpStatus.OK);
+    }
+
+    @GetMapping("/reporte/uso")
+    public ResponseEntity<List<ReporteUsoDTO>> generarReporteByUso(@RequestParam(name = "conPausa", required = true) @NotEmpty(message = "La configuracion del reporte no es valida") boolean conPausa) {
+        return new ResponseEntity<>(this.monopatinService.getMonopatinesByUso(conPausa), HttpStatus.OK);
     }
 
 }

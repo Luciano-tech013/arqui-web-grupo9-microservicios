@@ -15,6 +15,6 @@ public interface MonopatinFeignClient {
     @GetMapping("/api/monopatines/{idMonopatin}")
     ResponseEntity<MonopatinDTO> findById(@PathVariable Long idMonopatin);
 
-    @PostMapping
+    @PostMapping("/api/monopatines")
     ResponseEntity<Boolean> save(@RequestBody @Valid MonopatinDTO monopatin);
 }
