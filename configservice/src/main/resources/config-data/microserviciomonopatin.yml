@@ -4,11 +4,11 @@ server:
 spring:
   application:
     #Nombre del microservicio
-    name: microserviciocuenta
+    name: microserviciomonopatin
   datasource:
     #Datasource de la base de datos y config de JPA
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/cuentas?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3307/monopatines?createDatabaseIfNotExist=true
     username: root
   jpa:
     hibernate:

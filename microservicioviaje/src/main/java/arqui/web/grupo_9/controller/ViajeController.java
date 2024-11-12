@@ -1,5 +1,6 @@
 package arqui.web.grupo_9.controller;
 
+import arqui.web.grupo_9.model.clients.MonopatinDTO;
 import arqui.web.grupo_9.model.dto.ViajeDTO;
 import arqui.web.grupo_9.model.dto.converter.ViajeConverter;
 import arqui.web.grupo_9.model.entities.Viaje;
@@ -66,11 +67,11 @@ public class ViajeController {
     }
 
     @GetMapping("/monopatines/")
-    public ResponseEntity<List<Long>> getMonopatinesByCantViajesInoneYear(
+    public ResponseEntity<List<MonopatinDTO>> getMonopatinesByCantViajesInoneYear(
             @RequestParam(name = "anio", required = true) @NotEmpty(message = "El anio no puede ser vacio") @Positive(message = "El anio no puede ser negatvivo") int anio,
             @RequestParam(name = "cant_viajes", required = true) @NotEmpty(message = "La cantidad no puede ser negativa") @Positive(message = "El anio no puede ser negativo") int cantViajes) {
 
-        List<Long> monopatines = this.service.getMonopatinesByCantViajesInOneYear(anio, cantViajes);
+        List<MonopatinDTO> monopatines = this.service.getMonopatinesByCantViajesInOneYear(anio, cantViajes);
         if(monopatines.isEmpty())
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
 

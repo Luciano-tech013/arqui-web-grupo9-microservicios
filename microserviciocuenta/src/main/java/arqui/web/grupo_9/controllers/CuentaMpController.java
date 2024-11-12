@@ -6,6 +6,7 @@ import arqui.web.grupo_9.model.entities.CuentaMP;
 import arqui.web.grupo_9.services.CuentaMpService;
 import arqui.web.grupo_9.services.exceptions.CuentaInhabilitadaException;
 import arqui.web.grupo_9.services.exceptions.NotFoundFechaException;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
 import org.springframework.context.annotation.Lazy;
@@ -48,7 +49,12 @@ public class CuentaMpController {
 
     @PostMapping("/crear")
     public ResponseEntity<Boolean> crearCuenta(@RequestParam Long idUsuario) {
-        return new ResponseEntity<>(this.cuentaMpService.crearCuenta(idUsuario), HttpStatus.OK);
+        return new ResponseEntity<>(this.cuentaMpService.crearCuenta(idUsuario), HttpStatus.CREATED);
+    }
+
+    @PostMapping
+    public ResponseEntity<Boolean> save(@RequestBody @Valid CuentaMpDTO cuenta) {
+        return new ResponseEntity<>(this.cuentaMpService.saveCuenta(this.converter.fromDTO(cuenta)), HttpStatus.CREATED);
     }
 
     @PutMapping("/{idCuentaMP}/cargarSaldo")

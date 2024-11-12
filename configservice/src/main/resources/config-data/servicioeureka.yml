@@ -9,5 +9,6 @@ eureka:
   client:
     fetch-registry: false
     register-with-eureka: false
+    #Direccion del proceso del servidor del Eureka
     server-url:
       defaultZone: http://localhost:${server.port}/eureka/

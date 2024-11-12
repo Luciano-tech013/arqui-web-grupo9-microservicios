@@ -135,6 +135,24 @@ public class ControllerAdvice {
     }
 
     /**
+     * Manejador de excepciones para {@link CreditoInsuficienteException}.
+     * <p>
+     * Este método captura la excepción {@code CreditoInsuficienteException} lanzada cuando un usuario
+     * intenta realizar una operación sin tener crédito suficiente, y devuelve una respuesta con un
+     * código de estado {@code BAD_REQUEST} (400) junto con el mensaje de error amigable para el usuario
+     * y el nivel de severidad de la excepción.
+     * </p>
+     *
+     * @param ex La excepción {@link CreditoInsuficienteException} que se captura.
+     * @return Un {@link ResponseEntity} con un objeto {@link ExcepcionDTO} que contiene el mensaje para el usuario
+     *         y la severidad del error.
+     */
+    @ExceptionHandler(value = CreditoInsuficienteException.class)
+    public ResponseEntity<ExcepcionDTO> creditoInsuficienteExceptionHandler(CreditoInsuficienteException ex) {
+        return new ResponseEntity<>(this.createExceptionDTO(ex.getUserMessage(), ex.getSeverity()), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
      * Método auxiliar para crear un {@code ExcepcionDTO}.
      * <p>
      * Este método se utiliza para crear un objeto {@code ExcepcionDTO} con un mensaje y severidad proporcionados, que luego

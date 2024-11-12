@@ -1,20 +1,24 @@
 package arqui.web.grupo_9.service;
 
+import arqui.web.grupo_9.clients.MonopatinFeignClient;
+import arqui.web.grupo_9.model.clients.MonopatinDTO;
 import arqui.web.grupo_9.model.entities.Estacion;
 import arqui.web.grupo_9.repository.IEstacionRepository;
 import arqui.web.grupo_9.service.exceptions.NotFoundEstacionException;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class EstacionService {
 
     private IEstacionRepository estacionRepository;
+    private MonopatinFeignClient monopatinClient;
 
-    public EstacionService(IEstacionRepository estacionRepository) {
+    public EstacionService(IEstacionRepository estacionRepository, @Lazy MonopatinFeignClient monopatinClient) {
         this.estacionRepository = estacionRepository;
+        this.monopatinClient = monopatinClient;
     }
 
     public List<Estacion> findAll() {
@@ -50,8 +54,20 @@ public class EstacionService {
         return this.save(estacion);
     }
 
-    public List<Estacion> getEstacionsByUbicacion(Double latitud, Double longitud) {
+    public List<Estacion> getEstacionesByUbicacion(Double latitud, Double longitud) {
         return this.estacionRepository.getEstacionsByUbicacion(latitud, longitud);
+    }
+
+    public Set<MonopatinDTO> getMonopatinesByUbicacion(List<Estacion> estaciones) {
+        Set<MonopatinDTO> monopatines = new LinkedHashSet<>();
+
+        for(Estacion e : estaciones) {
+            List<MonopatinDTO> obtenidos = this.monopatinClient.getMonopatinesByUbicacion(e.getLatitud(), e.getLongitud()).getBody();
+            if(obtenidos != null)
+                monopatines.addAll(obtenidos);
+        }
+
+        return monopatines;
     }
 
 }

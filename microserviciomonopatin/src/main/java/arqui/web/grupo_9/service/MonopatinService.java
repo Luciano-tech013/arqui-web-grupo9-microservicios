@@ -56,4 +56,8 @@ public class MonopatinService {
     public List<Monopatin> getMonopatinesByEstado(String estado) {
         return this.repository.findAllEstadoMonopatines(estado.toLowerCase());
     }
+
+    public List<Monopatin> getMonopatinesByUbicacion(double latitud, double longitud) {
+        return this.repository.findAllByUbicacion(latitud, longitud);
+    }
 }

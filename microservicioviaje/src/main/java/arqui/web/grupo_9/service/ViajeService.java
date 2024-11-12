@@ -1,32 +1,32 @@
 package arqui.web.grupo_9.service;
 
-/*import arqui.web.grupo_9.viaje.clients.MonopatinFeignClient;
-import arqui.web.grupo_9.viaje.clients.UsuarioFeignClient;*/
+import arqui.web.grupo_9.clients.CuentaFeignClient;
+import arqui.web.grupo_9.clients.MonopatinFeignClient;
+import arqui.web.grupo_9.model.clients.CuentaMpDTO;
 import arqui.web.grupo_9.model.entities.Viaje;
-import arqui.web.grupo_9.model.clients.MonopatinClient;
-import arqui.web.grupo_9.model.clients.CuentaMPClient;
+import arqui.web.grupo_9.model.clients.MonopatinDTO;
+import arqui.web.grupo_9.model.clients.CuentaClient;
 import arqui.web.grupo_9.repository.IViajeRepository;
 import arqui.web.grupo_9.service.exceptions.FinalizarViajeException;
 import arqui.web.grupo_9.service.exceptions.NotFoundMonopatinClientException;
 import arqui.web.grupo_9.service.exceptions.NotFoundUsuarioClientException;
 import arqui.web.grupo_9.service.exceptions.NotFoundViajeException;
 import arqui.web.grupo_9.service.exceptions.*;
+import feign.FeignException;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class ViajeService {
     private IViajeRepository repository;
-    //private UsuarioFeignClient usuarioClient;
-    //private MonopatinFeignClient monopatinClient;
+    private CuentaFeignClient cuentaClient;
+    private MonopatinFeignClient monopatinClient;
     private static double creditoDescontado;
     private static double kmsRecorridos;
     private static Viaje viajeGenerado;
@@ -35,11 +35,13 @@ public class ViajeService {
     private static AtomicBoolean viajePausadoConRecargo;
     private static double nuevoPrecio;
     private static LocalDate fechaNueva;
+    private CuentaMpDTO cuenta;
+    private MonopatinDTO monopatin;
 
-    public ViajeService(IViajeRepository repository) {
+    public ViajeService(IViajeRepository repository, @Lazy CuentaFeignClient cuentaClient, @Lazy MonopatinFeignClient monopatinClient) {
         this.repository = repository;
-        //this.usuarioClient = usuarioClient;
-        //this.monopatinClient = monopatinClient;
+        this.cuentaClient = cuentaClient;
+        this.monopatinClient = monopatinClient;
         viajeEnCurso = new AtomicBoolean(false);
         viajePausado = new AtomicBoolean(false);
         viajePausadoConRecargo = new AtomicBoolean(false);
@@ -69,16 +71,21 @@ public class ViajeService {
     }
 
     public boolean generar(Long idCuenta, Long idMonopatin) {
-        CuentaMPClient cuenta = new CuentaMPClient();
-        MonopatinClient monopatin = new MonopatinClient();
-
-        if (cuenta == null)
+        try {
+            cuenta = cuentaClient.findById(idCuenta);
+        } catch(FeignException.FeignClientException ex) {
             throw new NotFoundUsuarioClientException("El usuario no está en el sistema", "No se pudo generar el viaje. Verifica los datos.", "high");
-        if (monopatin == null)
+        }
+
+        try {
+            monopatin = monopatinClient.findById(idMonopatin);
+        } catch(FeignException.FeignClientException ex) {
             throw new NotFoundMonopatinClientException("El monopatín no está en el sistema", "No se pudo generar el viaje. Verifica el monopatín.", "high");
+        }
 
         //Chekear el credito del usuario
-        //Habria que activar el monopatin?
+        if(cuenta.getCredito() < 0)
+            throw new CreditoInsuficienteException("La cuenta del usuario no tiene suficiente dinero para realizar un viaje", "No tienes suficiente dinero para realizar un via. Por favor, carga credito", "high");
 
         // Generar el viaje
         viajeGenerado = new Viaje(LocalDateTime.now(), idCuenta, idMonopatin);
@@ -151,16 +158,30 @@ public class ViajeService {
         viajeGenerado.setCostoTotal(creditoDescontado);
         viajeGenerado.setKmsRecorridos(kmsRecorridos);
 
-        //APLICAR CREDITO DESCONTADO AL USUARIO
-        //APLICAR LOS KMS RECORRIDOS AL MONOPATIN
+        //aplicar credito descontado a la cuenta del usuario
+        cuenta.setCredito(cuenta.getCredito() - creditoDescontado);
+
+        //aplicar los kms recorridos al monopatin
+        monopatin.setKmsRecorridos(monopatin.getKmsRecorridos() + kmsRecorridos);
+
+        this.cuentaClient.save(cuenta);
+        this.monopatinClient.save(monopatin);
+
         if(this.save(viajeGenerado))
             return this.findById(viajeGenerado.getIdViaje());
 
         return null;
     }
 
-    public List<Long> getMonopatinesByCantViajesInOneYear(int anio, int cantViajes) {
-        return this.repository.getMonopatinesByCantViajesInOneYear(anio, cantViajes);
+    public List<MonopatinDTO> getMonopatinesByCantViajesInOneYear(int anio, int cantViajes) {
+        List<Long> idMonopatines = this.repository.getMonopatinesByCantViajesInOneYear(anio, cantViajes);
+
+        List<MonopatinDTO> monopatinesObtenidos = new LinkedList<>();
+        for(Long id : idMonopatines) {
+            monopatinesObtenidos.add(monopatinClient.findById(id));
+        }
+
+        return monopatinesObtenidos;
     }
 
     public double getTotalFacturadoByMesesInOneYear(int mesIni, int mesFin, int anio) {

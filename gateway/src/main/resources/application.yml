@@ -4,6 +4,7 @@ spring:
   application:
     name: gateway
 
+#Asignamos la api al eureka tmb para crearla como puerta de enlace
 eureka:
   client:
     fetch-registry: true

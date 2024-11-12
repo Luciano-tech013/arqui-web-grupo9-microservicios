@@ -11,7 +11,7 @@ public class CuentaMPConverter extends ConverterDTO<CuentaMP, CuentaMpDTO> {
         if(e == null)
             return null;
 
-        return new CuentaMpDTO(e.getIdCuentaMP(), e.getSaldo(), e.getUsuarios());
+        return new CuentaMpDTO(e.getIdCuentaMP(), e.getSaldo());
     }
 
     @Override
@@ -19,6 +19,6 @@ public class CuentaMPConverter extends ConverterDTO<CuentaMP, CuentaMpDTO> {
         if(d == null)
             return null;
 
-        return new CuentaMP(d.getIdCuentaMP(), d.getSaldo(), d.getUsuarios());
+        return new CuentaMP(d.getIdCuentaMP(), d.getSaldo());
     }
 }

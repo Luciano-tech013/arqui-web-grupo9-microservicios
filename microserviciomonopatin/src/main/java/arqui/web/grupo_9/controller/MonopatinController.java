@@ -5,6 +5,8 @@ import arqui.web.grupo_9.model.dto.ReporteEstadoDTO;
 import arqui.web.grupo_9.model.dto.converter.MonopatinConverter;
 import arqui.web.grupo_9.model.entities.Monopatin;
 import arqui.web.grupo_9.service.MonopatinService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +41,7 @@ public class MonopatinController {
     }
 
     @PostMapping
-    public ResponseEntity<Boolean> save(@RequestBody MonopatinDTO monopatin) {
+    public ResponseEntity<Boolean> save(@RequestBody @Valid MonopatinDTO monopatin) {
         return new ResponseEntity<>(this.monopatinService.save(this.converter.fromDTO(monopatin)), HttpStatus.OK);
     }
 
@@ -61,6 +63,13 @@ public class MonopatinController {
         ReporteEstadoDTO reporte = new ReporteEstadoDTO((monopatinesEnMantenimiento.isEmpty()) ? 0 : monopatinesEnMantenimiento.size(),
                 (monopatinesEnOperacion.isEmpty()) ? 0 : monopatinesEnOperacion.size());
         return new ResponseEntity<>(reporte, HttpStatus.OK);
+    }
+
+    @GetMapping("/api/monopatines/ubicacion")
+    public ResponseEntity<List<MonopatinDTO>> getMonopatinesByUbicacion(@RequestParam(name = "latitud", required = true) @NotEmpty(message = "La latitud enviada no es valida") Double latitud,
+                                                                        @RequestParam(name = "longitud", required = true) @NotEmpty(message = "La longitud enviada no es valida") Double longitud) {
+        List<Monopatin> monopatines = this.monopatinService.getMonopatinesByUbicacion(latitud, longitud);
+        return new ResponseEntity<>(this.converter.fromEntity(monopatines), HttpStatus.OK);
     }
 
 }

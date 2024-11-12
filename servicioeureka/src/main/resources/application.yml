@@ -1,5 +1,8 @@
+#Importar modulo de propertie del config server
 spring:
   application:
+    #Nombre del archivo propertie.yml
     name: servicioeureka
   config:
+    #Direccion del proceso del config server
     import: optional:configserver:http://localhost:8081
