@@ -1,30 +1,14 @@
 server:
-  #Le asignamos el puerto dinamico
-  port: ${PORT:${SERVER_PORT:0}}
+  port: 8081
 spring:
   application:
-    #Nombre del microservicio
     name: microservicioviajes
   datasource:
-    #Datasource de la base de datos y config de JPA
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/viajes?createDatabaseIfNotExist=true
+    url: jdbc:mysql://localhost:3306/viajes?createDatabaseIfNotExist=true
     username: root
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     database: mysql
-
-#Configuracion para el Eureka
-eureka:
-  client:
-    #Activar la registracion del microservicio en el eureka
-    fetch-registry: true
-    register-with-eureka: true
-    #Ubicacion del server de eureka
-    service-url:
-      default-zone: http://localhost:8761/eureka/
-      #Le asignamos un puerto dinamico al microservicio
-  instance:
-    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}

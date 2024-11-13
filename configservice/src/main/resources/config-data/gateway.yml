@@ -15,30 +15,26 @@ spring:
     gateway:
       mvc:
         routes:
-          - id: microserviciocuenta_mp
-            uri: lb://microserviciocuenta
+          - id: microserviciocuenta
+            uri: lb://MICROSERVICIOCUENTA/
             predicates:
-              - Path=/mercadopago/api/cuentas/**
-
-          - id: microserviciocuenta_usuarios
-            uri: lb://microserviciocuenta
-            predicates:
-              - Path=/api/usuarios/**
-
+              - Path=/mercadopago/api/cuentas/**, /api/usuarios/**
           - id: microservicioestacion
             uri: lb://microservicioestacion
             predicates:
               - Path=/api/estaciones/**
-
           - id: microserviciomonopatin
             uri: lb://microserviciomonopatin
             predicates:
               - Path=/api/monopatines/**
-
           - id: microservicioviaje
-            uri: lb://microservicioviaje
+            uri: http://localhost:8081/
             predicates:
               - Path=/api/viajes/**
+      discovery:
+        locator:
+          enabled: true
+          lowerCaseServiceId: true
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG

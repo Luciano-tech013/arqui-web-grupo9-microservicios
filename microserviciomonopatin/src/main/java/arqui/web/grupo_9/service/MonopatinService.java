@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
 import java.util.List;
@@ -84,7 +85,7 @@ public class MonopatinService {
             //Si solicitaron incluir tiempo con pausa
             if(conPausa) {
                 //obtengo el tiempo total pausado de ese monopatin pegandole al microservicio de viajes, quien es el que posee ese dato y me lo devuelve ya calculado
-                LocalDateTime tiempoConPausa = this.viajeClient.getTiempoTotalPausadoDeMonopatin(m.getIdMonopatin());
+                Duration tiempoConPausa = this.viajeClient.getTiempoTotalPausadoDeMonopatin(m.getIdMonopatin()).getBody();
                 //genero el reporte con los kms y el tiempo de uso
                 reportes.add(new ReporteUsoDTO(m.getIdMonopatin(), m.getKmsRecorridos(), tiempoConPausa, m.getEstado()));
             } else {

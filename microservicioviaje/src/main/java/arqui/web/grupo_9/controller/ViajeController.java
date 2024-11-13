@@ -13,10 +13,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 
-@RestController("/api/viajes")
+@RestController()
+@RequestMapping("/api/viajes")
 public class ViajeController {
     private ViajeService service;
     private ViajeConverter converter;
@@ -97,7 +99,7 @@ public class ViajeController {
     }
 
     @GetMapping("/monopatin/reporte/tiempopausado/{idMonopatin}")
-    public ResponseEntity<> getTiempoTotalPausadoDeMonopatin(@PathVariable Long idMonopatin) {
-        this.service.getTiempoTotalPausadoDeMonopatin(idMonopatin);
+    public ResponseEntity<Duration> getTiempoTotalPausadoDeMonopatin(@PathVariable Long idMonopatin) {
+        return new ResponseEntity<>(this.service.getTiempoTotalPausadoDeMonopatin(idMonopatin), HttpStatus.OK);
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -198,11 +199,30 @@ public class ViajeService {
         return true;
     }
 
-    public LocalDateTime getTiempoTotalPausadoDeMonopatin(Long idMonopatin) {
+    public Duration getTiempoTotalPausadoDeMonopatin(Long idMonopatin) {
         //obtengo todos los tiempos de pausa de ese monopatin (inicio y fin)
-        this.repository.getTiemposPausadosDeMonopatin(idMonopatin);
+        List<Viaje> datos = this.repository.getTiemposPausadosDeMonopatin(idMonopatin);
 
-        //calcular el tiempo TOTAL de pausa
+        Duration tiempoTotal = Duration.ZERO;       
+        // Calcular el tiempo TOTAL de pausa
+        for (Viaje viaje : datos) {
+            System.out.println(viaje);
+            LocalDateTime fin = viaje.getFechaFinViajeConPausa();
+            LocalDateTime inicio = viaje.getFechaIniViajeConPausa();
+
+            if (fin == null && inicio == null) {
+                throw new NotFoundFechaException("El viaje encontrado no tiene fecha de inicio y fin de la pausa", "La fecha solicitada no tiene periodo de pausa", "high");
+            }
+
+            if(inicio.isAfter(fin)) {
+                throw new NotFoundFechaException("El viaje encontrado no tiene fecha valida de inicio y fin", "La fecha del viaje encontrado es incorrecta", "high");
+            }
+
+            Duration duracionPausa = Duration.between(inicio, fin);
+            tiempoTotal = tiempoTotal.plus(duracionPausa);
+        }
+
+        return tiempoTotal;
     }
 
     //METODOS PARA EL TESTING

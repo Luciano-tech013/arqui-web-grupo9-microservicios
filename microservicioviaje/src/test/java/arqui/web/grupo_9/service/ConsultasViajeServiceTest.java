@@ -1,11 +1,14 @@
 package arqui.web.grupo_9.service;
 
+import arqui.web.grupo_9.model.clients.MonopatinDTO;
 import arqui.web.grupo_9.model.entities.Viaje;
 import arqui.web.grupo_9.repository.IViajeRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -22,7 +25,6 @@ public class ConsultasViajeServiceTest {
     @Test
     @DisplayName("Test para obtener los monopatines con X cantidad de viajes en un año")
     void testGetMonopatinesByCantViajesInOneYear() {
-        List<Long> idMonopatines = List.of(2L, 3L);
         int anio = 2024;
         int cantViajes = 2;
 
@@ -46,7 +48,8 @@ public class ConsultasViajeServiceTest {
         this.service.save(viaje3);
         this.service.save(viaje4);
         this.service.save(viaje5);
-        List<Long> resultado = this.service.getMonopatinesByCantViajesInOneYear(anio, cantViajes);
+        List<Long> idMonopatines = List.of(viaje2.getIdMonopatin(), viaje3.getIdMonopatin());
+        List<MonopatinDTO> resultado = this.service.getMonopatinesByCantViajesInOneYear(anio, cantViajes);
 
         assertEquals(idMonopatines, resultado);
     }
@@ -74,5 +77,31 @@ public class ConsultasViajeServiceTest {
         double resultado = this.service.getTotalFacturadoByMesesInOneYear(5, 6, -2024);
 
         assertEquals(totalFacturado, resultado);
+    }
+
+    @Test
+    @DisplayName("Test para obtener el tiempo total de pausa de un monopatin")
+    void testGetTiempoTotalPausadoDeMonopatin() {
+        Viaje viaje = new Viaje(LocalDateTime.now(), 1456L, 1L);
+        viaje.setFechaIniViajeConPausa(LocalDateTime.of(LocalDate.of(2023, 9, 28), LocalTime.of(18, 10, 20, 24)));
+        viaje.setFechaFinViajeConPausa(LocalDateTime.of(LocalDate.of(2023, 9, 28), LocalTime.of(19, 13, 28, 44)));
+
+        Viaje viaje2 = new Viaje(LocalDateTime.now(), 1176L, 1L);
+        viaje2.setFechaIniViajeConPausa(LocalDateTime.of(LocalDate.of(2023, 9, 28), LocalTime.of(14, 24, 10, 4)));
+        viaje2.setFechaFinViajeConPausa(LocalDateTime.of(LocalDate.of(2023, 9, 28), LocalTime.of(16, 18, 29, 48)));
+
+        Viaje viaje3 = new Viaje(LocalDateTime.now(), 1681L, 2L);
+        viaje3.setFechaIniViajeConPausa(LocalDateTime.of(LocalDate.of(2023, 9, 28), LocalTime.of(18, 10, 20, 24)));
+        viaje3.setFechaFinViajeConPausa(LocalDateTime.of(LocalDate.of(2023, 9, 28), LocalTime.of(19, 13, 28, 44)));
+
+        this.service.save(viaje);
+        this.service.save(viaje2);
+        this.service.save(viaje3);
+
+        Duration d = this.service.getTiempoTotalPausadoDeMonopatin(1L);
+
+        // Verifica que la duración total tenga 2 horas y 51 minutos
+        assertEquals(2L, d.toHoursPart()); // Parte de horas
+        assertEquals(57L, d.toMinutesPart()); // Parte de minutos
     }
 }

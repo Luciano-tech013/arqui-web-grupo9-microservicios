@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter
+@ToString
 public class Viaje {
     @Setter(AccessLevel.NONE)
     @Id
